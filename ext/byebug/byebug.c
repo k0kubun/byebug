@@ -13,6 +13,7 @@ static VALUE tracepoints = Qnil;
 static VALUE raised_exception = Qnil;
 
 static ID idPuts;
+static ID idEmpty;
 
 /* Hash table with active threads and their associated contexts */
 VALUE threads = Qnil;
@@ -584,6 +585,33 @@ Stop(VALUE self)
   return Qtrue;
 }
 
+static VALUE
+Stoppable(VALUE self)
+{
+  VALUE context;
+  debug_context_t *dc;
+
+  if (breakpoints != Qnil && rb_funcall(breakpoints, idEmpty, 0) == Qfalse)
+    return Qfalse;
+
+  if (catchpoints != Qnil && rb_funcall(catchpoints, idEmpty, 0) == Qfalse)
+    return Qfalse;
+
+  if (post_mortem == Qtrue)
+    return Qfalse;
+
+  context = Current_context(self);
+  if (context != Qnil)
+  {
+    Data_Get_Struct(context, debug_context_t, dc);
+
+    if (dc->steps > 0)
+      return Qfalse;
+  }
+
+  return Qtrue;
+}
+
 /*
  *  call-seq:
  *    Byebug.start -> bool
@@ -747,6 +775,7 @@ Init_byebug()
   rb_define_module_function(mByebug, "start", Start, 0);
   rb_define_module_function(mByebug, "started?", Started, 0);
   rb_define_module_function(mByebug, "stop", Stop, 0);
+  rb_define_module_function(mByebug, "stoppable?", Stoppable, 0);
   rb_define_module_function(mByebug, "thread_context", Thread_context, 1);
   rb_define_module_function(mByebug, "tracing?", Tracing, 0);
   rb_define_module_function(mByebug, "tracing=", Set_tracing, 1);
@@ -762,4 +791,5 @@ Init_byebug()
   rb_global_variable(&threads);
 
   idPuts = rb_intern("puts");
+  idEmpty = rb_intern("empty?");
 }
