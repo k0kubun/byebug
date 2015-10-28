@@ -591,6 +591,9 @@ Stoppable(VALUE self)
   VALUE context;
   debug_context_t *dc;
 
+  if (!IS_STARTED)
+    return Qfalse;
+
   if (breakpoints != Qnil && rb_funcall(breakpoints, idEmpty, 0) == Qfalse)
     return Qfalse;
 
