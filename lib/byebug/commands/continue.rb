@@ -41,6 +41,8 @@ module Byebug
       end
 
       processor.proceed!
+    ensure
+      Byebug.stop
     end
   end
 end

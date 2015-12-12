@@ -17,7 +17,7 @@ class MinitestRunner
     test_suites.each { |f| require File.expand_path(f) }
 
     flags = ["--name=/#{tests.join('|')}/"]
-    flags = ["--name=/continue/"]
+    #flags = ["--name=/continue/"]
 
     Minitest.run(flags + ARGV)
   end
