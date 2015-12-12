@@ -14,6 +14,7 @@ module Byebug
       run_init_script
     end
 
+    enable_tracepoints
     current_context.step_out(2, true)
   end
 end

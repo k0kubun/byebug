@@ -412,7 +412,6 @@ raise_event(VALUE trace_point, void *data)
 static void
 register_tracepoints(VALUE self)
 {
-  int i;
   VALUE traces = tracepoints;
 
   UNUSED(self);
@@ -443,9 +442,6 @@ register_tracepoints(VALUE self)
 
     tracepoints = traces;
   }
-
-  for (i = 0; i < RARRAY_LENINT(traces); i++)
-    rb_tracepoint_enable(rb_ary_entry(traces, i));
 }
 
 static void
@@ -725,6 +721,25 @@ Add_catchpoint(VALUE self, VALUE value)
   return value;
 }
 
+static VALUE
+Enable_tracepoints(VALUE self)
+{
+  int i;
+
+  UNUSED(self);
+
+  for (i = 0; i < RARRAY_LENINT(tracepoints); i++)
+    rb_tracepoint_enable(rb_ary_entry(tracepoints, i));
+  return Qnil;
+}
+
+static VALUE
+Disable_tracepoints(VALUE self)
+{
+  clear_tracepoints(self);
+  return Qnil;
+}
+
 /*
  *   Document-class: Byebug
  *
@@ -746,6 +761,8 @@ Init_byebug()
   rb_define_module_function(mByebug, "debug_load", Debug_load, -1);
   rb_define_module_function(mByebug, "post_mortem?", Post_mortem, 0);
   rb_define_module_function(mByebug, "post_mortem=", Set_post_mortem, 1);
+  rb_define_module_function(mByebug, "disable_tracepoints", Disable_tracepoints, 0);
+  rb_define_module_function(mByebug, "enable_tracepoints", Enable_tracepoints, 0);
   rb_define_module_function(mByebug, "raised_exception", Raised_exception, 0);
   rb_define_module_function(mByebug, "start", Start, 0);
   rb_define_module_function(mByebug, "started?", Started, 0);
